@@ -31,7 +31,7 @@ const App = () => {
     }, []);
 
     const showNews =
-        news.length > 0 ? (
+        news.length ? (
             news.map((article, i) => <Article data={article} key={i} />)
         ) : (
             <p>No News to Show</p>
