@@ -1,0 +1,21 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+    .paginationBttns {
+        @apply w-4/5 h-10 list-none flex justify-center;
+    }
+
+    .paginationBttns a {
+        @apply p-2.5 m-2 rounded-md border-slate-600 text-slate-600 cursor-pointer;
+    }
+
+    .paginationBttns a:hover {
+        @apply bg-slate-600 text-white;
+    }
+
+    .paginationActive a {
+        @apply text-white bg-slate-600;
+    }
+}

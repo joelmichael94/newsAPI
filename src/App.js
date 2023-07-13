@@ -1,25 +1,36 @@
 import React, { useState, useEffect, useRef } from "react";
 import Article from "./components/Article";
+import ReactPaginate from "react-paginate";
 
 const App = () => {
     const [news, setNews] = useState([]);
     const [loading, setLoading] = useState(false);
     // const [country, setCountry] = useState("");
     // const [category, setCategory] = useState("");
+
     const country = useRef("");
     const category = useRef("");
-    const from = useRef("");
-    const to = useRef("");
 
-    const getNews = async (country, category, from, to) => {
+    const [pageNumber, setPageNumber] = useState(0);
+
+    const newsPerPage = 3;
+    const pagesVisited = pageNumber * newsPerPage;
+
+    const displayNews = news.length ? (
+        news
+            .slice(pagesVisited, pagesVisited + newsPerPage)
+            .map((article, i) => <Article data={article} key={i} />)
+    ) : (
+        <p>No News to Show</p>
+    );
+
+    const getNews = async (country, category) => {
         setLoading(true);
         if (!country) country = "my";
         if (!category) category = "business";
-        from ? (from = `&from=${from}`) : (from = "");
-        to ? (to = `&to=${to}`) : (to = "");
 
         let res = await fetch(
-            `https://newsapi.org/v2/top-headlines?country=${country}&category=${category}${from}${to}&apiKey=${process.env.REACT_APP_API_KEY}`
+            `https://newsapi.org/v2/top-headlines?country=${country}&category=${category}&apiKey=${process.env.REACT_APP_API_KEY}`
         );
         let data = await res.json();
         setNews(data.articles);
@@ -27,15 +38,14 @@ const App = () => {
     };
 
     useEffect(() => {
-        getNews(country.current, category.current, from.current, to.current);
+        getNews(country.current, category.current);
     }, []);
 
-    const showNews =
-        news ? (
-            news.map((article, i) => <Article data={article} key={i} />)
-        ) : (
-            <p>No News to Show</p>
-        );
+    // const showNews = news.length ? (
+    //     news.map((article, i) => <Article data={article} key={i} />)
+    // ) : (
+    //     <p>No News to Show</p>
+    // )
 
     const categories = [
         "general",
@@ -62,30 +72,24 @@ const App = () => {
         "in",
     ];
 
-    // const selectCountry = (e) => {
-    //     setCountry(e.target.value);
-    // };
+    const pageCount = Math.ceil(news.length / newsPerPage);
 
-    // const selectCategory = (e) => {
-    //     setCategory(e.target.value);
-    // };
-
-    // const onSubmitHandler = () => {
-    //     getNews(country, category);
-    // };
+    const changePage = ({ selected }) => {
+        setPageNumber(selected);
+    };
 
     return (
-        <div className="w-screen">
+        <div>
             {loading ? (
                 <p>Your internet is slow</p>
             ) : (
-                <>
-                    <div>
-                        {/* {Select dropdown for country and categories} */}
+                <div className="grid place-items-center">
+                    <div className="flex justify-center my-5 border border-slate-500 px-10 py-5 text-lg">
+                        {/* Select dropdown for country and categories */}
                         <select
+                            className="mx-10"
                             name="country"
                             defaultValue={""}
-                            // onChange={selectCountry}
                             onChange={(e) => {
                                 country.current = e.target.value;
                                 console.log(country.current);
@@ -101,9 +105,9 @@ const App = () => {
                             ))}
                         </select>
                         <select
+                            className="mx-10"
                             name="category"
                             defaultValue={""}
-                            // onChange={selectCategory}
                             onChange={(e) => {
                                 category.current = e.target.value;
                                 console.log(category.current);
@@ -118,41 +122,28 @@ const App = () => {
                                 </option>
                             ))}
                         </select>
-                        <div>
-                            <label>From: </label>
-                            <input
-                                type="date"
-                                name="from"
-                                onChange={(e) => {
-                                    from.current = e.target.value;
-                                    console.log(from.current);
-                                }}
-                            />
-                            <label>To: </label>
-                            <input
-                                type="date"
-                                name="to"
-                                onChange={(e) => {
-                                    to.current = e.target.value;
-                                    console.log(to.current);
-                                }}
-                            />
-                        </div>
                         <button
-                            /*onClick={onSubmitHandler}*/ onClick={() =>
-                                getNews(
-                                    country.current,
-                                    category.current,
-                                    from.current,
-                                    to.current
-                                )
+                            className="mx-10"
+                            onClick={() =>
+                                getNews(country.current, category.current)
                             }
                         >
                             Search
                         </button>
                     </div>
-                    {showNews}
-                </>
+                    <div>{displayNews}</div>
+                    <ReactPaginate
+                        previousLabel={"Previous"}
+                        nextLabel={"Next"}
+                        pageCount={pageCount}
+                        onPageChange={changePage}
+                        containerClassName={"paginationBttns"}
+                        previousLinkClassName={"previousBttn"}
+                        nextLinkClassName={"nextBttn"}
+                        disabledClassName={"paginationDisabled"}
+                        activeClassName={"paginationActive"}
+                    />
+                </div>
             )}
         </div>
     );

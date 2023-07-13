@@ -1,0 +1,17 @@
+@layer components {
+    .paginationBttns {
+        @apply w-4/5 h-10 list-none flex justify-center;
+    }
+
+    .paginationBttns a {
+        @apply p-2.5 m-2 rounded-md border-blue-200 text-blue-200 cursor-pointer;
+    }
+
+    .paginationBttns a:hover {
+        @apply bg-blue-200 text-white;
+    }
+
+    .paginationActive a {
+        @apply text-white bg-blue-200;
+    }
+}
